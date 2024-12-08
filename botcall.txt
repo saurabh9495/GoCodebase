@@ -1,0 +1,104 @@
+High-Level Design:
+Bot Invocation & Call Handling:
+
+Trigger: The bot is triggered by an invitation to a Google/Zoom/Other Meet call.
+Capabilities: The bot can record the call screen, capture audio, and take screenshots.
+Resources: The system checks if the minimum resources are available to run the bot (CPU, RAM, etc.).
+Resource Management:
+
+Bot Pool: Maintain a pool of available bots.
+Scaling: If the available bots are fewer than required, spin up new VMs (using AWS or GCP).
+Max Capacity Handling: If all bots are occupied, notify the admin via SNS (Simple Notification Service).
+Data Storage and Processing:
+
+Recording Storage: At the end of each call, the bot saves the recording (audio and screen capture) locally.
+Upload to S3: The bot uploads the recording to AWS S3.
+Trigger: Once the upload is successful, trigger an API call to AssemblyAI for transcription.
+Confirmation: After transcription, the system sends a notification and takes a screenshot as confirmation.
+Capacity Planning:
+
+Expected Workload: Handle 250 US and 250 EU calls daily, with a capacity of handling 10 calls per hour.
+Bot Availability: Maintain at least 2-3 VMs with 1 CPU and 1GB RAM.
+
+
+class BotManager:
+    def __init__(self):
+        self.available_bots = 3
+        self.current_bots = 0
+        self.max_bots = 20
+
+    def check_availability(self):
+        if self.current_bots < self.available_bots:
+            if self.current_bots < self.max_bots:
+                self.spin_a_bot()
+                self.current_bots += 1
+            else:
+                self.send_sns_notification("All bots occupied!")
+                return False
+        return True
+
+    def release_bot(self):
+        if self.current_bots > 0:
+            self.current_bots -= 1
+            self.update_bot_count()
+
+    def spin_a_bot(self):
+        # Spin up a new VM on AWS/GCP
+        # Assume a predefined template for VM
+        pass
+
+    def update_bot_count(self):
+        # Update the available bot count in the system
+        pass
+
+    def send_sns_notification(self, message):
+        # Notify admin that all bots are occupied
+        pass
+
+def handle_meeting(meeting_params):
+    bot_manager = BotManager()
+    
+    if bot_manager.check_availability():
+        # Bot joins the call, records, and saves the data
+        recording_file = record_call(meeting_params)
+        upload_success = upload_to_s3(recording_file)
+        
+        if upload_success:
+            transcribe_recording(recording_file)
+            bot_manager.release_bot()
+            send_confirmation()
+
+def record_call(meeting_params):
+    # Record the call (screen, audio, etc.)
+    # Save to a file and return the file path
+    pass
+
+def upload_to_s3(file_path):
+    # Upload the file to S3
+    # Return success status
+    pass
+
+def transcribe_recording(file_path):
+    # Send the file to AssemblyAI API for transcription
+    # Handle the JSON response
+    pass
+
+def send_confirmation():
+    # Send a notification and take a screenshot
+    pass
+
+
+AWS/GCP VM Template:
+Template Configuration:
+Min Availability: Maintain a minimum of 2 VMs.
+VM Specs: 1 CPU, 1GB RAM.
+Auto-Scaling: Based on the number of active bots.
+API Endpoints:
+Endpoint: /botcall
+Method: POST
+Params: Call meeting details (URL, Time, etc.)
+Response: Acknowledge with the status of bot assignment.
+Key Points:
+Web UI Portal: A web-accessible UI for tracking bots, their current states, and manual control.
+Real-time Processing: Ensure the bot can handle real-time data efficiently.
+Capacity Estimation: Consider the potential data load and ensure the system can scale as needed.

@@ -1,0 +1,105 @@
+Problem Statement
+Design Patterns to Consider:
+
+Creational: Singleton, Prototype, Builder, Factory
+Structural: Facade, Proxy
+Behavioral: Iterator, Observer, Mediator, State
+Objective: We need an on-premises solution due to compliance and audit requirements.
+
+Blueprint
+Input:
+
+Multiple on-premises databases.
+Multiple APIs: We receive scan and vulnerability data.
+Multiple Reports: Scan reports.
+Roles:
+Assessor: Person conducting the assessment.
+TO: Person reviewing the final report.
+PM: Project Manager who approves the final report.
+Tech Stack:
+
+Cloud SQL / Cloud Spanner
+API Endpoint / Automation Webhook / Polling
+JIRA as the main application
+Kubernetes Engine
+Expected Result:
+
+API Endpoint Workflow:
+Portal → On-prem Database → GCP (GKE) → DB → Nodes (main, backup) → Volumes → Services
+Cloud Repository (YAML/Workflow) → Pub/Sub → Docker Builder → GCP Artifacts → K8s Nodes → Redeploy
+Customer Requirements:
+
+Provide information about resources in the Cloud.
+Assume the usage of third-party tools to gather information.
+Design a cloud-native solution.
+Input Resources:
+
+Customer resources: Source code, Network Entity, Web Application, Mobile
+Granular resources: Cloud Function, IAM Roles, S3 Buckets, EKS, Kinesis, SNS, Athena, Lambda
+Service Access:
+
+User Roles: Owner, Editor, Viewer
+Predefined Roles:
+Read/Write: Bucket (read all files, write, edit)
+Solution Design
+API Specifications:
+
+Critical API:
+High API:
+API Form:
+
+cloud_ = Cloud environment
+which_component_ = Specific component
+scopes_ = Defined scopes
+Bulk API Workflow:
+
+Lambda + Bucket →
+Number of users
+Functions
+Buckets
+Clusters
+Firewalls
+Number of Databases
+Backend Setup:
+
+Framework: Django Dashboard
+UI Application: React-built code
+Backend Calculations:
+
+Assets:
+Files
+Compute
+Configurations:
+
+Service
+Views
+View Function:
+
+python
+Copy code
+from gcp import agcp_bucket_api, service
+
+def view():
+    sanitized_values = sanitize_input()
+    status = gcpupload(sanitized_values, bucket)
+    return status
+URLs:
+
+path_for_lambda/
+path_for_lambda_parsing(files, name, assess)
+Model:
+
+python
+Copy code
+class LambdaModel(models.Model):
+    name = models.TextField()
+    type = models.TextField()
+    date = models.DateField()
+    any_bug = models.BooleanField(default=False)
+    file = models.FilePathField(path="/assets/compute/")
+MVC Components:
+
+Database: MySQL
+Integration with Burp Enterprise:
+
+API Endpoint: path_for_lambda(files, name, assess)
